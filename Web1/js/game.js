@@ -263,114 +263,59 @@ function cellCenter(col, row) {
   return [col * CELL_SIZE + CELL_SIZE / 2, row * CELL_SIZE + CELL_SIZE / 2];
 }
 
-// Draw a complete piece as an SVG <g> element (centered at origin, then translated).
+// Map piece type keys to their SVG symbol IDs (defined in index.html <defs>).
+const PIECE_SYMBOL_ID = {
+  STOMPER:      'piece-stomper',
+  LASER_CANNON: 'piece-laser-cannon',
+  LASER_TUBE:   'piece-laser-tube',
+  MIRROR:       'piece-mirror',
+  SPLITTER:     'piece-splitter',
+};
+
+// Draw a complete piece as an SVG <g> element.
+//
+// Artwork comes from the <symbol> elements authored in index.html (or
+// the matching files in pieces/).  This function only adds the selection
+// ring, applies player colours via CSS custom properties, and attaches
+// the orientation tick — all purely programmatic concerns.
 function drawPiece(piece, isSelected) {
   const [cx, cy] = cellCenter(piece.col, piece.row);
   const c        = PLAYER_COLORS[piece.player];
   const angleDeg = piece.rotation * 45;
-  const r        = CELL_SIZE / 2 - 5; // piece radius / half-size
 
+  // The group's transform centres the piece on its cell and applies rotation.
+  // CSS custom properties --pf / --ps propagate into the <use> shadow content
+  // so the <symbol> artwork can reference them with var(--pf) / var(--ps).
   const group = el('g', {
     transform: `translate(${cx},${cy}) rotate(${angleDeg})`,
-    cursor: 'pointer',
+    style:     `--pf:${c.fill};--ps:${c.stroke}`,
+    cursor:    'pointer',
   });
 
-  // Selection ring (drawn before the piece, in unrotated space for the label)
+  // Selection ring — drawn at a fixed radius regardless of piece shape.
   if (isSelected) {
     group.appendChild(el('circle', {
-      cx: 0, cy: 0, r: r + 5,
+      cx: 0, cy: 0, r: 28,
       fill: 'none', stroke: '#00ff99', 'stroke-width': 2, 'stroke-dasharray': '4 3',
     }));
   }
 
-  switch (piece.type) {
-    case 'STOMPER':      drawStomper     (group, r, c); break;
-    case 'LASER_CANNON': drawLaserCannon (group, r, c); break;
-    case 'LASER_TUBE':   drawLaserTube   (group, r, c); break;
-    case 'MIRROR':       drawMirror      (group, r, c); break;
-    case 'SPLITTER':     drawSplitter    (group, r, c); break;
-  }
+  // Piece artwork — referenced from the <symbol> in index.html.
+  // x/y of -24 combined with width/height of 48 and the symbol's
+  // viewBox="-24 -24 48 48" centres the artwork at the group's origin.
+  group.appendChild(el('use', {
+    href:   `#${PIECE_SYMBOL_ID[piece.type]}`,
+    x: -24, y: -24, width: 48, height: 48,
+  }));
 
-  // Orientation tick at the "North" (local top) of the piece
+  // Orientation tick — small line protruding from the local North edge,
+  // so players can always see which way the piece is facing.
   group.appendChild(el('line', {
-    x1: 0, y1: -r + 2, x2: 0, y2: -r - 5,
+    x1: 0, y1: -24, x2: 0, y2: -30,
     stroke: c.highlight, 'stroke-width': 2, 'stroke-linecap': 'round',
   }));
 
-  // Label (counter-rotated so text is always upright)
-  const abbr = { STOMPER: 'ST', LASER_CANNON: 'LC', LASER_TUBE: 'LT', MIRROR: 'MI', SPLITTER: 'SP' };
-  group.appendChild(el('text', {
-    x: 0, y: 4,
-    'text-anchor': 'middle',
-    fill: c.label,
-    'font-size': '10px',
-    'font-family': 'monospace',
-    transform: `rotate(${-angleDeg})`,
-    'pointer-events': 'none',
-  })).textContent = abbr[piece.type];
-
   return group;
-}
-
-function drawStomper(g, r, c) {
-  // Circle body
-  g.appendChild(el('circle', { cx: 0, cy: 0, r, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-  // Reflective cardinal sides shown as bright arcs / marks
-  for (let i = 0; i < 4; i++) {
-    const a = (i * 90) * Math.PI / 180;
-    const x = Math.sin(a) * (r * 0.65);
-    const y = -Math.cos(a) * (r * 0.65);
-    g.appendChild(el('circle', { cx: x, cy: y, r: 3, fill: c.highlight }));
-  }
-}
-
-function drawLaserCannon(g, r, c) {
-  const h = r * 0.72;
-  // Body
-  g.appendChild(el('rect', { x: -h, y: -h, width: h * 2, height: h * 2, rx: 3, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-  // Barrel pointing North (local up = negative y)
-  const bw = h * 0.35;
-  g.appendChild(el('rect', { x: -bw / 2, y: -r - 4, width: bw, height: h * 0.75, rx: 2, fill: c.stroke }));
-  // Muzzle dot
-  g.appendChild(el('circle', { cx: 0, cy: -r - 4, r: 3, fill: '#ffee44' }));
-}
-
-function drawLaserTube(g, r, c) {
-  const h = r * 0.72;
-  // Body
-  g.appendChild(el('rect', { x: -h, y: -h, width: h * 2, height: h * 2, rx: 3, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-  // Through-channel (dark rectangle along N-S axis)
-  const tw = h * 0.4;
-  g.appendChild(el('rect', { x: -tw / 2, y: -h, width: tw, height: h * 2, fill: '#000', opacity: 0.5 }));
-  // Reflective front (N side) highlighted
-  g.appendChild(el('rect', { x: -h, y: -h, width: h * 2, height: 4, rx: 1, fill: c.highlight, opacity: 0.9 }));
-  // Pass-through back (S side) open indicator
-  g.appendChild(el('rect', { x: -h, y: h - 4, width: h * 2, height: 4, rx: 1, fill: '#444' }));
-}
-
-function drawMirror(g, r, c) {
-  // Right-triangle body: vertices at top-left (NW), bottom-left (SW), bottom-right (SE)
-  // This visually represents local W and NW as the "front" reflective faces.
-  const pts = [[-r, -r], [-r, r], [r, r]].map(([x, y]) => `${x},${y}`).join(' ');
-  g.appendChild(el('polygon', { points: pts, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-  // Highlight the reflective W edge (left vertical)
-  g.appendChild(el('line', { x1: -r, y1: -r, x2: -r, y2: r, stroke: c.highlight, 'stroke-width': 2.5 }));
-  // Highlight the reflective NW edge (top-left diagonal)
-  g.appendChild(el('line', { x1: -r, y1: -r, x2: 0, y2: -r, stroke: c.highlight, 'stroke-width': 2.5 }));
-  // Mirror surface indicator (the diagonal slash)
-  g.appendChild(el('line', { x1: -r, y1: r, x2: r, y2: -r, stroke: '#88ccff', 'stroke-width': 1.5, opacity: 0.7 }));
-}
-
-function drawSplitter(g, r, c) {
-  // Diamond body
-  const pts = [`0,${-r}`, `${r},0`, `0,${r}`, `${-r},0`].join(' ');
-  g.appendChild(el('polygon', { points: pts, fill: c.fill, stroke: c.stroke, 'stroke-width': 1.5 }));
-  // Highlight the two reflective diagonal faces (NE and SE edges)
-  g.appendChild(el('line', { x1: 0, y1: -r, x2: r, y2: 0, stroke: c.highlight, 'stroke-width': 2.5 })); // NE
-  g.appendChild(el('line', { x1: r, y1: 0,  x2: 0, y2: r, stroke: c.highlight, 'stroke-width': 2.5 })); // SE
-  // Cross to suggest splitting
-  g.appendChild(el('line', { x1: -r * 0.5, y1: 0, x2: r * 0.5, y2: 0, stroke: '#88ccff', 'stroke-width': 1, opacity: 0.6 }));
-  g.appendChild(el('line', { x1: 0, y1: -r * 0.5, x2: 0, y2: r * 0.5, stroke: '#88ccff', 'stroke-width': 1, opacity: 0.6 }));
 }
 
 function drawLaserPaths(svg, game) {
