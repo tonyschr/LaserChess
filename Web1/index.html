@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laser Chess</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Laser Chess</h1>
+      <div id="status-bar">
+        <div id="player-indicator" class="player-1">Player 1's Turn</div>
+        <div id="actions-display">Actions: <span id="actions-count">3</span></div>
+      </div>
+      <div id="controls">
+        <button id="btn-rotate-ccw" disabled title="Rotate selected piece 45° counter-clockwise (1 action)">&#8634; CCW</button>
+        <button id="btn-rotate-cw" disabled title="Rotate selected piece 45° clockwise (1 action)">&#8635; CW</button>
+        <button id="btn-fire" title="Fire all lasers for current player">Fire Lasers</button>
+        <button id="btn-end-turn" title="End turn">End Turn</button>
+        <button id="btn-new-game" title="Start a new game">New Game</button>
+      </div>
+    </header>
+    <main>
+      <div id="board-container">
+        <svg id="board" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div id="sidebar">
+        <div id="piece-info">
+          <h3>Selected Piece</h3>
+          <div id="selected-piece-details">Click a piece to select it.</div>
+        </div>
+        <div id="legend">
+          <h3>Piece Legend</h3>
+          <div class="legend-item"><span class="legend-icon stomper"></span> Stomper</div>
+          <div class="legend-item"><span class="legend-icon cannon"></span> Laser Cannon</div>
+          <div class="legend-item"><span class="legend-icon tube"></span> Laser Tube</div>
+          <div class="legend-item"><span class="legend-icon mirror"></span> Mirror</div>
+          <div class="legend-item"><span class="legend-icon splitter"></span> Splitter</div>
+        </div>
+        <div id="game-log">
+          <h3>Game Log</h3>
+          <div id="log-entries"></div>
+        </div>
+      </div>
+    </main>
+    <div id="game-over-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="winner-text"></h2>
+        <button id="btn-modal-new-game">New Game</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/pieces.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
