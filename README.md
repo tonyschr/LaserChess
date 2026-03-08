@@ -1,6 +1,6 @@
 # LaserChess
 
-Starting a new project with Claude AI to bootstrap.
+Starting a new project with Claude AI to bootstrap. This is an AI learning excercise.
 
 Brief log:
 
