@@ -104,20 +104,24 @@ const PIECE_TYPES = {
   },
 
   // ── Mirror ──
-  // Has two consecutive reflective sides (local W and local NW) that redirect
-  // an incoming laser 90° clockwise.
+  // Right isoceles triangle with "/" hypotenuse.  Right angle at local SE.
+  // Vertices (rotation 0): SW(-17,17), NE(17,-17), SE(17,17).
+  //
+  // The "/" hypotenuse spans 3 consecutive face slots (W, NW, N) — all reflective.
+  // The two legs (S face, E face) are vulnerable.
   //
   // With rotation 0:
-  //   Local W  face (hit by laser going E) → redirected to go S  (90° CW)
-  //   Local NW face (hit by laser going SE) → redirected to go SW (90° CW)
+  //   W  face (hit by laser going E)  → exits going N   (90°)
+  //   N  face (hit by laser going S)  → exits going W   (90°)
+  //   NW face (hit by laser going SE) → exits going NW  (back-scatter)
   //
-  // Rotate the mirror to redirect lasers from any cardinal/diagonal angle.
+  // Rotate the mirror to redirect lasers from any angle.
   MIRROR: {
     name: 'Mirror',
-    sides: [SIDE_V, SIDE_V, SIDE_V, SIDE_V, SIDE_V, SIDE_V, SIDE_R, SIDE_R],
+    //     N        NE       E        SE       S        SW       W        NW
+    sides: [SIDE_R, SIDE_V, SIDE_V, SIDE_V, SIDE_V, SIDE_V, SIDE_R, SIDE_R],
     reflect(localDir /*, localHitSide */) {
-      // 90° clockwise redirect for any incoming direction
-      return (localDir + 2) % 8;
+      return REFLECT_SLASH[localDir];
     },
     laserSides: [],
     maxMoves: 1,

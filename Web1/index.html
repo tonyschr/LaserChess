@@ -78,20 +78,18 @@
       </symbol>
 
       <!-- ── MIRROR ────────────────────────────────────────────────────────
-           Reflective sides: W and NW.  Redirects laser 90° clockwise.
-           Mirror surface shown as a bold "\" diagonal line.            -->
+           Right isoceles triangle, right angle at SE. "/" hypotenuse (SW→NE)
+           spans 3 reflective face slots: W, NW, N.  Legs (S, E) are vulnerable.
+             E laser hits W face  → exits N   (90°, REFLECT_SLASH)
+             S laser hits N face  → exits W   (90°, REFLECT_SLASH)
+             SE laser hits NW face → back-scatter NW                         -->
       <symbol id="piece-mirror" viewBox="-24 -24 48 48">
-        <rect x="-18" y="-18" width="36" height="36" rx="3"
-              fill="inherit" stroke="currentColor" stroke-width="1.5"/>
-        <!-- Mirror surface: "\" line (NW→SE) -->
-        <line x1="-12" y1="-12" x2="12" y2="12"
-              stroke="#88ccff" stroke-width="4" stroke-linecap="round"/>
-        <!-- Reflective West face: bright left bar -->
-        <rect x="-18" y="-12" width="5" height="24" rx="1.5"
-              fill="currentColor" fill-opacity="0.9"/>
-        <!-- Reflective NW face: bright top-left bar -->
-        <rect x="-18" y="-18" width="24" height="5" rx="1.5"
-              fill="currentColor" fill-opacity="0.9"/>
+        <!-- Triangle body: SW(-17,17), NE(17,-17), SE(17,17) — right angle at SE -->
+        <polygon points="-17,17 17,-17 17,17"
+                 fill="inherit" stroke="currentColor" stroke-width="1.5"/>
+        <!-- Reflective "/" hypotenuse (SW→NE) — bright accent, same style as Stomper -->
+        <line x1="-17" y1="17" x2="17" y2="-17"
+              stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
       </symbol>
 
       <!-- ── SPLITTER ──────────────────────────────────────────────────────
