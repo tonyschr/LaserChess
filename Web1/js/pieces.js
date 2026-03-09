@@ -125,19 +125,25 @@ const PIECE_TYPES = {
   },
 
   // ── Splitter ──
-  // Two non-consecutive reflective sides (local NE and local SE) that split
-  // the incoming laser into two beams: one going 90° CW and one 90° CCW.
+  // Small northward-pointing triangle.  The two diagonal faces (NW and NE)
+  // are reflective; the base (S) is the only vulnerable side.  East and West
+  // lasers pass straight through because the triangle has no E/W faces.
   //
   // With rotation 0:
-  //   Local NE face (hit by laser going SW): splits into NW + SE beams
-  //   Local SE face (hit by laser going NW): splits into NE + SW beams
+  //   N  face — hit by laser going S → splits into E + W beams
+  //   NE face — hit by laser going SW → bounces back SW  ("/" reflection)
+  //   NW face — hit by laser going SE → bounces back SE  ("\" reflection)
+  //   E, SE, SW, W faces — SIDE_P: laser passes through (no face there)
+  //   S  face — SIDE_V: vulnerable
   SPLITTER: {
     name: 'Splitter',
-    sides: [SIDE_V, SIDE_R, SIDE_V, SIDE_R, SIDE_V, SIDE_V, SIDE_V, SIDE_V],
-    reflect(localDir /*, localHitSide */) {
-      const cw  = (localDir + 2) % 8;
-      const ccw = (localDir + 6) % 8;
-      return [cw, ccw]; // split into two perpendicular beams
+    //     N        NE       E        SE       S        SW       W        NW
+    sides: [SIDE_R, SIDE_R, SIDE_P, SIDE_P, SIDE_V, SIDE_P, SIDE_P, SIDE_R],
+    reflect(localDir, localHitSide) {
+      if (localHitSide === 0) return [2, 6];               // N apex → split E + W
+      if (localHitSide === 1) return REFLECT_SLASH[localDir];     // NE "/" face
+      if (localHitSide === 7) return REFLECT_BACKSLASH[localDir]; // NW "\" face
+      return null;
     },
     laserSides: [],
     maxMoves: 1,

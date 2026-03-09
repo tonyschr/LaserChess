@@ -95,22 +95,22 @@
       </symbol>
 
       <!-- ── SPLITTER ──────────────────────────────────────────────────────
-           Reflective sides: NE and SE.
-           Splits the beam into two perpendicular outgoing beams.       -->
+           Northward-pointing triangle.
+           Reflective : NW face (left diagonal) and NE face (right diagonal)
+           Vulnerable : S face (base)
+           Pass-through: E, SE, SW, W (no faces — laser misses)
+           N face (apex): laser going S splits into E + W beams.          -->
       <symbol id="piece-splitter" viewBox="-24 -24 48 48">
-        <polygon points="0,-21 21,0 0,21 -21,0"
+        <!-- Triangle body: apex at top, base at bottom
+             Equilateral inscribed in r=18: apex (0,-18), base (±15.6, 9) -->
+        <polygon points="0,-18 15.6,9 -15.6,9"
                  fill="inherit" stroke="currentColor" stroke-width="1.5"/>
-        <!-- Reflective NE edge -->
-        <line x1="0" y1="-21" x2="21" y2="0"
+        <!-- Reflective NW face (left diagonal) -->
+        <line x1="0" y1="-18" x2="-15.6" y2="9"
               stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- Reflective SE edge -->
-        <line x1="21" y1="0" x2="0" y2="21"
+        <!-- Reflective NE face (right diagonal) -->
+        <line x1="0" y1="-18" x2="15.6" y2="9"
               stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- Faint cross suggesting split output directions -->
-        <line x1="-13" y1="0" x2="13" y2="0"
-              stroke="#88ccff" stroke-width="1.5" stroke-opacity="0.7"/>
-        <line x1="0" y1="-13" x2="0" y2="13"
-              stroke="#88ccff" stroke-width="1.5" stroke-opacity="0.7"/>
       </symbol>
 
     </defs>
